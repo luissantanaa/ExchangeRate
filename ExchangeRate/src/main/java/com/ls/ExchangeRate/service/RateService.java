@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -19,21 +21,23 @@ public class RateService {
 
     public ServiceResponseDto getExchangeRate(String from, String to) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s", from, to);
-        HttpURLConnection request = null;
+        Map<String, HttpURLConnection> connection;
+        HttpURLConnection request;
         ServiceResponseDto response;
 
-        try {
-            URL url = new URL(url_str);
-            request = (HttpURLConnection) url.openConnection();
-            request.connect();
+        connection = getConnection(url_str);
+        request = connection.get("connection");
 
-        } catch (Exception e) {
+        if (request == null) {
             response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
         }
 
+        request.connect();
+
+        // TODO check if from param is correct
         try {
             if (request.getResponseCode() == 200) {
                 String jsonResponse = new BufferedReader(new InputStreamReader((InputStream) request.getContent()))
@@ -78,20 +82,21 @@ public class RateService {
 
     public ServiceResponseDto getAllExchangeRates(String base) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/latest?base=%s", base);
-        HttpURLConnection request = null;
+        Map<String, HttpURLConnection> connection;
+        HttpURLConnection request;
         ServiceResponseDto response;
 
-        try {
-            URL url = new URL(url_str);
-            request = (HttpURLConnection) url.openConnection();
-            request.connect();
+        connection = getConnection(url_str);
+        request = connection.get("connection");
 
-        } catch (Exception e) {
+        if (request == null) {
             response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
         }
+
+        request.connect();
 
         try {
             if (request.getResponseCode() == 200) {
@@ -144,22 +149,26 @@ public class RateService {
     }
 
     public ServiceResponseDto getConvertedAmount(String from, String to, int amount) throws IOException {
+
+        // TODO check if from param is correct
+
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s&amount=%d", from, to,
                 amount);
-        HttpURLConnection request = null;
+        Map<String, HttpURLConnection> connection;
+        HttpURLConnection request;
         ServiceResponseDto response;
 
-        try {
-            URL url = new URL(url_str);
-            request = (HttpURLConnection) url.openConnection();
-            request.connect();
+        connection = getConnection(url_str);
+        request = connection.get("connection");
 
-        } catch (Exception e) {
+        if (request == null) {
             response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
         }
+
+        request.connect();
 
         try {
             if (request.getResponseCode() == 200) {
@@ -206,23 +215,24 @@ public class RateService {
     public ServiceResponseDto getConvertedAmountToAllCurr(String from, List<String> to, int amount) throws IOException {
         String finalCurrencies = String.join(",", to);
 
-        String url_str = String.format("https://api.exchangerate.host/latest?from=%s&symbols=%s&amount=%d", from,
+        String url_str = String.format("https://api.exchangerate.host/latest?base=%s&symbols=%s&amount=%d", from,
                 finalCurrencies, amount);
 
-        HttpURLConnection request = null;
+        Map<String, HttpURLConnection> connection;
+        HttpURLConnection request;
         ServiceResponseDto response;
 
-        try {
-            URL url = new URL(url_str);
-            request = (HttpURLConnection) url.openConnection();
-            request.connect();
+        connection = getConnection(url_str);
+        request = connection.get("connection");
 
-        } catch (Exception e) {
+        if (request == null) {
             response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
         }
+
+        request.connect();
 
         try {
             if (request.getResponseCode() == 200) {
@@ -231,6 +241,7 @@ public class RateService {
                         .collect(Collectors.joining("\n"));
 
                 JSONObject obj = new JSONObject(jsonResponse);
+
                 if (!obj.getString("base").equals(from)) {
                     response = ServiceResponseDto.builder().statusCode(404).message("Base currency not found")
                             .result(null)
@@ -270,5 +281,21 @@ public class RateService {
                 .build();
 
         return response;
+    }
+
+    private Map<String, HttpURLConnection> getConnection(String url_str) {
+        HttpURLConnection request = null;
+        Map<String, HttpURLConnection> result = new HashMap<String, HttpURLConnection>();
+
+        try {
+            URL url = new URL(url_str);
+            request = (HttpURLConnection) url.openConnection();
+            result.put("connection", request);
+            return result;
+
+        } catch (Exception e) {
+            result.put("connection", null);
+            return result;
+        }
     }
 }
