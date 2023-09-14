@@ -51,4 +51,25 @@ public class RateController {
             return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
         }
     }
+
+    @Operation(summary = "Retrieve all exchange rates")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Found Exchange Rates"),
+            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
+    })
+    @GetMapping(path = "getAllExchangeRates/")
+    public ResponseEntity<String> getAllExchangeRates(@RequestParam("base") String base) throws IOException {
+        ServiceResponse service_result = this.rateService.getAllExchangeRates(base);
+        int statusCode = service_result.statusCode;
+
+        if (statusCode == 200) {
+            String formattedResults = service_result.result.toString().replaceAll("[{}]", "").replace(",", "\n");
+            return new ResponseEntity<>(
+                    formattedResults,
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+        }
+    }
 }
