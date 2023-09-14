@@ -1,11 +1,17 @@
 package com.ls.ExchangeRate.service;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,14 +22,63 @@ import org.springframework.stereotype.Service;
 
 import com.ls.ExchangeRate.dto.ServiceResponseDto;
 
+import jakarta.annotation.PostConstruct;
+
 @Service
 public class RateService {
+    private List<String> availableRates;
+
+    @PostConstruct
+    public void init() throws FileNotFoundException, IOException {
+        String url_str = "https://api.exchangerate.host/symbols";
+        Map<String, HttpURLConnection> connection;
+        HttpURLConnection request;
+
+        connection = getConnection(url_str);
+        request = connection.get("connection");
+
+        if (request != null) {
+            try {
+                request.connect();
+
+                if (request.getResponseCode() == 200) {
+                    String jsonResponse = new BufferedReader(new InputStreamReader((InputStream) request.getContent()))
+                            .lines()
+                            .collect(Collectors.joining("\n"));
+
+                    JSONObject obj = new JSONObject(jsonResponse);
+
+                    if (obj.getJSONObject("symbols") != null) {
+                        availableRates = new ArrayList<>(obj.getJSONObject("symbols").toMap().keySet());
+                    }
+
+                }
+            } catch (IOException e) {
+                File file = new File("src/main/resources/static/rates.csv");
+                try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] values = line.split(",");
+                        availableRates = Arrays.asList(values);
+                    }
+                }
+
+            }
+        }
+    }
 
     public ServiceResponseDto getExchangeRate(String from, String to) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s", from, to);
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
+
+        if (!availableRates.contains(from) || !availableRates.contains(to)) {
+            response = ServiceResponseDto.builder().statusCode(400).message("Base or Final currency not found")
+                    .result(null)
+                    .build();
+            return response;
+        }
 
         connection = getConnection(url_str);
         request = connection.get("connection");
@@ -37,7 +92,6 @@ public class RateService {
 
         request.connect();
 
-        // TODO check if from param is correct
         try {
             if (request.getResponseCode() == 200) {
                 String jsonResponse = new BufferedReader(new InputStreamReader((InputStream) request.getContent()))
@@ -45,14 +99,6 @@ public class RateService {
                         .collect(Collectors.joining("\n"));
 
                 JSONObject obj = new JSONObject(jsonResponse);
-
-                if (obj.get("result").toString() == "null") {
-                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
-                            .result(null)
-                            .build();
-
-                    return response;
-                }
 
                 Object result = obj.get("result");
 
@@ -86,6 +132,13 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
+        if (!availableRates.contains(base)) {
+            response = ServiceResponseDto.builder().statusCode(400).message("Base currency not found")
+                    .result(null)
+                    .build();
+            return response;
+        }
+
         connection = getConnection(url_str);
         request = connection.get("connection");
 
@@ -105,22 +158,6 @@ public class RateService {
                         .collect(Collectors.joining("\n"));
 
                 JSONObject obj = new JSONObject(jsonResponse);
-
-                if (!obj.getString("base").equals(base)) {
-                    response = ServiceResponseDto.builder().statusCode(404).message("Base currency not found")
-                            .result(null)
-                            .build();
-
-                    return response;
-                }
-
-                if (obj.get("rates").toString() == "null") {
-                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
-                            .result(null)
-                            .build();
-
-                    return response;
-                }
 
                 Object result = obj.get("rates");
 
@@ -149,14 +186,19 @@ public class RateService {
     }
 
     public ServiceResponseDto getConvertedAmount(String from, String to, int amount) throws IOException {
-
-        // TODO check if from param is correct
-
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s&amount=%d", from, to,
                 amount);
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
+
+        if (!availableRates.contains(from) || !availableRates.contains(to) || !(amount > 0)) {
+            response = ServiceResponseDto.builder().statusCode(400)
+                    .message("Base or Final currency must exist and Amount must be over 0")
+                    .result(null)
+                    .build();
+            return response;
+        }
 
         connection = getConnection(url_str);
         request = connection.get("connection");
@@ -177,15 +219,6 @@ public class RateService {
                         .collect(Collectors.joining("\n"));
 
                 JSONObject obj = new JSONObject(jsonResponse);
-
-                if (obj.get("result").toString() == "null") {
-                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
-                            .result(null)
-                            .build();
-
-                    return response;
-                }
-
                 Object result = obj.get("result");
 
                 response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
@@ -222,6 +255,16 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
+        boolean validToRates = to.stream().allMatch(elem -> availableRates.contains(elem));
+
+        if (!availableRates.contains(from) || !validToRates || !(amount > 0)) {
+            response = ServiceResponseDto.builder().statusCode(400)
+                    .message("Base or Final currency must exist and Amount must be over 0")
+                    .result(null)
+                    .build();
+            return response;
+        }
+
         connection = getConnection(url_str);
         request = connection.get("connection");
 
@@ -241,22 +284,6 @@ public class RateService {
                         .collect(Collectors.joining("\n"));
 
                 JSONObject obj = new JSONObject(jsonResponse);
-
-                if (!obj.getString("base").equals(from)) {
-                    response = ServiceResponseDto.builder().statusCode(404).message("Base currency not found")
-                            .result(null)
-                            .build();
-
-                    return response;
-                }
-
-                if (obj.get("rates").toString() == "null") {
-                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
-                            .result(null)
-                            .build();
-
-                    return response;
-                }
 
                 Object result = obj.get("rates");
                 response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
