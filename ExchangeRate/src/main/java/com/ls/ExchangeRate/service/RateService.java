@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.Reader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
@@ -74,9 +73,9 @@ public class RateService {
         ServiceResponseDto response;
 
         if (!availableRates.contains(from) || !availableRates.contains(to)) {
-            response = ServiceResponseDto.builder().statusCode(400).message("Base or Final currency not found")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(400, "Base or Final currency not found",
+                    null);
             return response;
         }
 
@@ -84,9 +83,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
-            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
         }
 
@@ -102,27 +100,16 @@ public class RateService {
 
                 Object result = obj.get("result");
 
-                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                        .message("Successful request")
-                        .result(result)
-                        .build();
-
+                response = serviceResponseDtoBuilder(request.getResponseCode(), "Successful request", result);
                 return response;
             }
         } catch (IOException e) {
 
-            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                    .message("Error processing request response")
-                    .result(null)
-                    .build();
+            response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
         }
 
-        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                .message("Error")
-                .result(null)
-                .build();
-
+        response = serviceResponseDtoBuilder(request.getResponseCode(), "Error", null);
         return response;
     }
 
@@ -133,9 +120,8 @@ public class RateService {
         ServiceResponseDto response;
 
         if (!availableRates.contains(base)) {
-            response = ServiceResponseDto.builder().statusCode(400).message("Base currency not found")
-                    .result(null)
-                    .build();
+            response = serviceResponseDtoBuilder(400, "Base currency not found",
+                    null);
             return response;
         }
 
@@ -143,9 +129,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
-            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
         }
 
@@ -161,27 +146,16 @@ public class RateService {
 
                 Object result = obj.get("rates");
 
-                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                        .message("Successful request")
-                        .result(result)
-                        .build();
-
+                response = serviceResponseDtoBuilder(request.getResponseCode(), "Successful request", result);
                 return response;
             }
         } catch (IOException e) {
 
-            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                    .message("Error processing request response")
-                    .result(null)
-                    .build();
+            response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
         }
 
-        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                .message("Error")
-                .result(null)
-                .build();
-
+        response = serviceResponseDtoBuilder(request.getResponseCode(), "Error", null);
         return response;
     }
 
@@ -193,10 +167,9 @@ public class RateService {
         ServiceResponseDto response;
 
         if (!availableRates.contains(from) || !availableRates.contains(to) || !(amount > 0)) {
-            response = ServiceResponseDto.builder().statusCode(400)
-                    .message("Base or Final currency must exist and Amount must be over 0")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(400, "Base or Final currency must exist and Amount must be over 0",
+                    null);
             return response;
         }
 
@@ -204,9 +177,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
-            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
         }
 
@@ -221,27 +193,16 @@ public class RateService {
                 JSONObject obj = new JSONObject(jsonResponse);
                 Object result = obj.get("result");
 
-                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                        .message("Successful request")
-                        .result(result)
-                        .build();
-
+                response = serviceResponseDtoBuilder(request.getResponseCode(), "Successful request", result);
                 return response;
             }
         } catch (IOException e) {
 
-            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                    .message("Error processing request response")
-                    .result(null)
-                    .build();
+            response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
         }
 
-        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                .message("Error")
-                .result(null)
-                .build();
-
+        response = serviceResponseDtoBuilder(request.getResponseCode(), "Error", null);
         return response;
     }
 
@@ -258,10 +219,9 @@ public class RateService {
         boolean validToRates = to.stream().allMatch(elem -> availableRates.contains(elem));
 
         if (!availableRates.contains(from) || !validToRates || !(amount > 0)) {
-            response = ServiceResponseDto.builder().statusCode(400)
-                    .message("Base or Final currency must exist and Amount must be over 0")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(400, "Base or Final currency must exist and Amount must be over 0",
+                    null);
             return response;
         }
 
@@ -269,9 +229,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
-            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
-                    .result(null)
-                    .build();
+
+            response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
         }
 
@@ -286,27 +245,16 @@ public class RateService {
                 JSONObject obj = new JSONObject(jsonResponse);
 
                 Object result = obj.get("rates");
-                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                        .message("Successful request")
-                        .result(result)
-                        .build();
-
+                response = serviceResponseDtoBuilder(request.getResponseCode(), "Successful request", result);
                 return response;
             }
         } catch (IOException e) {
 
-            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                    .message("Error processing request response")
-                    .result(null)
-                    .build();
+            response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
         }
 
-        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
-                .message("Error")
-                .result(null)
-                .build();
-
+        response = serviceResponseDtoBuilder(request.getResponseCode(), "Error", null);
         return response;
     }
 
@@ -324,5 +272,13 @@ public class RateService {
             result.put("connection", null);
             return result;
         }
+    }
+
+    private ServiceResponseDto serviceResponseDtoBuilder(int statusCode, String message, Object result) {
+        ServiceResponseDto response = ServiceResponseDto.builder().statusCode(statusCode)
+                .message(message)
+                .result(result)
+                .build();
+        return response;
     }
 }
