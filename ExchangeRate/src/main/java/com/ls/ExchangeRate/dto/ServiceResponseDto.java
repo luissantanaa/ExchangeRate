@@ -1,11 +1,11 @@
-package com.ls.ExchangeRate.rates;
+package com.ls.ExchangeRate.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
-@Builder
 @Getter
-public class ServiceResponse {
+@Builder
+public class ServiceResponseDto {
     int statusCode;
     String message;
     Object result;

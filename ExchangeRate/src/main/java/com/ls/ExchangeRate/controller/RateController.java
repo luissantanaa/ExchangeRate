@@ -1,18 +1,18 @@
-package com.ls.ExchangeRate.rates;
+package com.ls.ExchangeRate.controller;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ls.ExchangeRate.dto.ServiceResponseDto;
+import com.ls.ExchangeRate.service.RateService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -43,13 +43,13 @@ public class RateController {
     @GetMapping(path = "getExchangeRate/")
     public ResponseEntity<String> getExchangeRate(@RequestParam("from") String from,
             @RequestParam("to") String to) throws IOException {
-        ServiceResponse service_result = this.rateService.getExchangeRate(from, to);
-        int statusCode = service_result.statusCode;
+        ServiceResponseDto service_result = this.rateService.getExchangeRate(from, to);
+        int statusCode = service_result.getStatusCode();
 
         if (statusCode == 200) {
-            return new ResponseEntity<>("Exchange Rate: " + service_result.result, HttpStatus.OK);
+            return new ResponseEntity<>("Exchange Rate: " + service_result.getResult(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+            return new ResponseEntity<>(service_result.getMessage(), HttpStatus.valueOf(statusCode));
         }
     }
 
@@ -61,16 +61,16 @@ public class RateController {
     })
     @GetMapping(path = "getAllExchangeRates/")
     public ResponseEntity<String> getAllExchangeRates(@RequestParam("base") String base) throws IOException {
-        ServiceResponse service_result = this.rateService.getAllExchangeRates(base);
-        int statusCode = service_result.statusCode;
+        ServiceResponseDto service_result = this.rateService.getAllExchangeRates(base);
+        int statusCode = service_result.getStatusCode();
 
         if (statusCode == 200) {
-            String formattedResults = service_result.result.toString().replaceAll("[{}]", "").replace(",", "\n");
+            String formattedResults = service_result.getResult().toString().replaceAll("[{}]", "").replace(",", "\n");
             return new ResponseEntity<>(
                     formattedResults,
                     HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+            return new ResponseEntity<>(service_result.getMessage(), HttpStatus.valueOf(statusCode));
         }
     }
 
@@ -84,13 +84,13 @@ public class RateController {
     public ResponseEntity<String> getConvertedAmount(@RequestParam("from") String from, @RequestParam("to") String to,
             @RequestParam("amount") int amount) throws IOException {
 
-        ServiceResponse service_result = this.rateService.getConvertedAmount(from, to, amount);
-        int statusCode = service_result.statusCode;
+        ServiceResponseDto service_result = this.rateService.getConvertedAmount(from, to, amount);
+        int statusCode = service_result.getStatusCode();
 
         if (statusCode == 200) {
-            return new ResponseEntity<>("Converted amount: " + service_result.result, HttpStatus.OK);
+            return new ResponseEntity<>("Converted amount: " + service_result.getResult(), HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+            return new ResponseEntity<>(service_result.getMessage(), HttpStatus.valueOf(statusCode));
         }
     }
 
@@ -104,16 +104,16 @@ public class RateController {
     public ResponseEntity<String> getConvertedAmountToCurrs(@RequestParam("from") String from,
             @RequestParam("to") List<String> to,
             @RequestParam("amount") int amount) throws IOException {
-        ServiceResponse service_result = this.rateService.getConvertedAmountToAllCurr(from, to, amount);
-        int statusCode = service_result.statusCode;
+        ServiceResponseDto service_result = this.rateService.getConvertedAmountToAllCurr(from, to, amount);
+        int statusCode = service_result.getStatusCode();
 
         if (statusCode == 200) {
-            String formattedResults = service_result.result.toString().replaceAll("[{}]", "").replace(",", "\n");
+            String formattedResults = service_result.getResult().toString().replaceAll("[{}]", "").replace(",", "\n");
             return new ResponseEntity<>(
                     formattedResults,
                     HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+            return new ResponseEntity<>(service_result.getMessage(), HttpStatus.valueOf(statusCode));
         }
     }
 

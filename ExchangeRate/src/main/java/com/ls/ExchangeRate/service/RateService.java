@@ -1,4 +1,4 @@
-package com.ls.ExchangeRate.rates;
+package com.ls.ExchangeRate.service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,13 +12,15 @@ import java.util.stream.Collectors;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import com.ls.ExchangeRate.dto.ServiceResponseDto;
+
 @Service
 public class RateService {
 
-    public ServiceResponse getExchangeRate(String from, String to) throws IOException {
+    public ServiceResponseDto getExchangeRate(String from, String to) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s", from, to);
         HttpURLConnection request = null;
-        ServiceResponse response;
+        ServiceResponseDto response;
 
         try {
             URL url = new URL(url_str);
@@ -26,7 +28,7 @@ public class RateService {
             request.connect();
 
         } catch (Exception e) {
-            response = ServiceResponse.builder().statusCode(502).message("Error connecting to external API")
+            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
@@ -41,7 +43,7 @@ public class RateService {
                 JSONObject obj = new JSONObject(jsonResponse);
 
                 if (obj.get("result").toString() == "null") {
-                    response = ServiceResponse.builder().statusCode(400).message("Unsuccessful request")
+                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
                             .result(null)
                             .build();
 
@@ -50,7 +52,8 @@ public class RateService {
 
                 Object result = obj.get("result");
 
-                response = ServiceResponse.builder().statusCode(request.getResponseCode()).message("Successful request")
+                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
+                        .message("Successful request")
                         .result(result)
                         .build();
 
@@ -58,14 +61,14 @@ public class RateService {
             }
         } catch (IOException e) {
 
-            response = ServiceResponse.builder().statusCode(request.getResponseCode())
+            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                     .message("Error processing request response")
                     .result(null)
                     .build();
             return response;
         }
 
-        response = ServiceResponse.builder().statusCode(request.getResponseCode())
+        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                 .message("Error")
                 .result(null)
                 .build();
@@ -73,10 +76,10 @@ public class RateService {
         return response;
     }
 
-    public ServiceResponse getAllExchangeRates(String base) throws IOException {
+    public ServiceResponseDto getAllExchangeRates(String base) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/latest?base=%s", base);
         HttpURLConnection request = null;
-        ServiceResponse response;
+        ServiceResponseDto response;
 
         try {
             URL url = new URL(url_str);
@@ -84,7 +87,7 @@ public class RateService {
             request.connect();
 
         } catch (Exception e) {
-            response = ServiceResponse.builder().statusCode(502).message("Error connecting to external API")
+            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
@@ -99,7 +102,7 @@ public class RateService {
                 JSONObject obj = new JSONObject(jsonResponse);
 
                 if (!obj.getString("base").equals(base)) {
-                    response = ServiceResponse.builder().statusCode(404).message("Base currency not found")
+                    response = ServiceResponseDto.builder().statusCode(404).message("Base currency not found")
                             .result(null)
                             .build();
 
@@ -107,7 +110,7 @@ public class RateService {
                 }
 
                 if (obj.get("rates").toString() == "null") {
-                    response = ServiceResponse.builder().statusCode(400).message("Unsuccessful request")
+                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
                             .result(null)
                             .build();
 
@@ -116,7 +119,8 @@ public class RateService {
 
                 Object result = obj.get("rates");
 
-                response = ServiceResponse.builder().statusCode(request.getResponseCode()).message("Successful request")
+                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
+                        .message("Successful request")
                         .result(result)
                         .build();
 
@@ -124,14 +128,14 @@ public class RateService {
             }
         } catch (IOException e) {
 
-            response = ServiceResponse.builder().statusCode(request.getResponseCode())
+            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                     .message("Error processing request response")
                     .result(null)
                     .build();
             return response;
         }
 
-        response = ServiceResponse.builder().statusCode(request.getResponseCode())
+        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                 .message("Error")
                 .result(null)
                 .build();
@@ -139,11 +143,11 @@ public class RateService {
         return response;
     }
 
-    public ServiceResponse getConvertedAmount(String from, String to, int amount) throws IOException {
+    public ServiceResponseDto getConvertedAmount(String from, String to, int amount) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s&amount=%d", from, to,
                 amount);
         HttpURLConnection request = null;
-        ServiceResponse response;
+        ServiceResponseDto response;
 
         try {
             URL url = new URL(url_str);
@@ -151,7 +155,7 @@ public class RateService {
             request.connect();
 
         } catch (Exception e) {
-            response = ServiceResponse.builder().statusCode(502).message("Error connecting to external API")
+            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
@@ -166,7 +170,7 @@ public class RateService {
                 JSONObject obj = new JSONObject(jsonResponse);
 
                 if (obj.get("result").toString() == "null") {
-                    response = ServiceResponse.builder().statusCode(400).message("Unsuccessful request")
+                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
                             .result(null)
                             .build();
 
@@ -175,7 +179,8 @@ public class RateService {
 
                 Object result = obj.get("result");
 
-                response = ServiceResponse.builder().statusCode(request.getResponseCode()).message("Successful request")
+                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
+                        .message("Successful request")
                         .result(result)
                         .build();
 
@@ -183,14 +188,14 @@ public class RateService {
             }
         } catch (IOException e) {
 
-            response = ServiceResponse.builder().statusCode(request.getResponseCode())
+            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                     .message("Error processing request response")
                     .result(null)
                     .build();
             return response;
         }
 
-        response = ServiceResponse.builder().statusCode(request.getResponseCode())
+        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                 .message("Error")
                 .result(null)
                 .build();
@@ -198,14 +203,14 @@ public class RateService {
         return response;
     }
 
-    public ServiceResponse getConvertedAmountToAllCurr(String from, List<String> to, int amount) throws IOException {
+    public ServiceResponseDto getConvertedAmountToAllCurr(String from, List<String> to, int amount) throws IOException {
         String finalCurrencies = String.join(",", to);
 
         String url_str = String.format("https://api.exchangerate.host/latest?from=%s&symbols=%s&amount=%d", from,
                 finalCurrencies, amount);
 
         HttpURLConnection request = null;
-        ServiceResponse response;
+        ServiceResponseDto response;
 
         try {
             URL url = new URL(url_str);
@@ -213,7 +218,7 @@ public class RateService {
             request.connect();
 
         } catch (Exception e) {
-            response = ServiceResponse.builder().statusCode(502).message("Error connecting to external API")
+            response = ServiceResponseDto.builder().statusCode(502).message("Error connecting to external API")
                     .result(null)
                     .build();
             return response;
@@ -227,7 +232,7 @@ public class RateService {
 
                 JSONObject obj = new JSONObject(jsonResponse);
                 if (!obj.getString("base").equals(from)) {
-                    response = ServiceResponse.builder().statusCode(404).message("Base currency not found")
+                    response = ServiceResponseDto.builder().statusCode(404).message("Base currency not found")
                             .result(null)
                             .build();
 
@@ -235,7 +240,7 @@ public class RateService {
                 }
 
                 if (obj.get("rates").toString() == "null") {
-                    response = ServiceResponse.builder().statusCode(400).message("Unsuccessful request")
+                    response = ServiceResponseDto.builder().statusCode(400).message("Unsuccessful request")
                             .result(null)
                             .build();
 
@@ -243,7 +248,8 @@ public class RateService {
                 }
 
                 Object result = obj.get("rates");
-                response = ServiceResponse.builder().statusCode(request.getResponseCode()).message("Successful request")
+                response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
+                        .message("Successful request")
                         .result(result)
                         .build();
 
@@ -251,14 +257,14 @@ public class RateService {
             }
         } catch (IOException e) {
 
-            response = ServiceResponse.builder().statusCode(request.getResponseCode())
+            response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                     .message("Error processing request response")
                     .result(null)
                     .build();
             return response;
         }
 
-        response = ServiceResponse.builder().statusCode(request.getResponseCode())
+        response = ServiceResponseDto.builder().statusCode(request.getResponseCode())
                 .message("Error")
                 .result(null)
                 .build();
