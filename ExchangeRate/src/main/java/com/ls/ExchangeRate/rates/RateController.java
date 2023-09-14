@@ -72,4 +72,47 @@ public class RateController {
             return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
         }
     }
+
+    @Operation(summary = "Convert amount to currency")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Converted amount"),
+            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
+    })
+    @GetMapping(path = "getConvertedAmount/")
+    public ResponseEntity<String> getConvertedAmount(@RequestParam("from") String from, @RequestParam("to") String to,
+            @RequestParam("amount") int amount) throws IOException {
+
+        ServiceResponse service_result = this.rateService.getConvertedAmount(from, to, amount);
+        int statusCode = service_result.statusCode;
+
+        if (statusCode == 200) {
+            return new ResponseEntity<>("Converted amount: " + service_result.result, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+        }
+    }
+
+    @Operation(summary = "Convert amount to all other currencies")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Converted amount"),
+            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
+    })
+    @GetMapping(path = "getConvertedAmountToAllCurr/")
+    public ResponseEntity<String> getConvertedAmountToAllCurr(@RequestParam("from") String from,
+            @RequestParam("amount") int amount) throws IOException {
+        ServiceResponse service_result = this.rateService.getConvertedAmountToAllCurr(from, amount);
+        int statusCode = service_result.statusCode;
+
+        if (statusCode == 200) {
+            String formattedResults = service_result.result.toString().replaceAll("[{}]", "").replace(",", "\n");
+            return new ResponseEntity<>(
+                    formattedResults,
+                    HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
+        }
+    }
+
 }
