@@ -2,6 +2,7 @@ package com.ls.ExchangeRate.rates;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,16 +94,17 @@ public class RateController {
         }
     }
 
-    @Operation(summary = "Convert amount to all other currencies")
+    @Operation(summary = "Convert amount to requested currencies")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Converted amount"),
             @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
     @GetMapping(path = "getConvertedAmountToAllCurr/")
-    public ResponseEntity<String> getConvertedAmountToAllCurr(@RequestParam("from") String from,
+    public ResponseEntity<String> getConvertedAmountToCurrs(@RequestParam("from") String from,
+            @RequestParam("to") List<String> to,
             @RequestParam("amount") int amount) throws IOException {
-        ServiceResponse service_result = this.rateService.getConvertedAmountToAllCurr(from, amount);
+        ServiceResponse service_result = this.rateService.getConvertedAmountToAllCurr(from, to, amount);
         int statusCode = service_result.statusCode;
 
         if (statusCode == 200) {

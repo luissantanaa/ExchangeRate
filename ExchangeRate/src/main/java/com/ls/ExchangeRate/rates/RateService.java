@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -197,8 +198,12 @@ public class RateService {
         return response;
     }
 
-    public ServiceResponse getConvertedAmountToAllCurr(String from, int amount) throws IOException {
-        String url_str = String.format("https://api.exchangerate.host/latest?from=%s&amount=%d", from, amount);
+    public ServiceResponse getConvertedAmountToAllCurr(String from, List<String> to, int amount) throws IOException {
+        String finalCurrencies = String.join(",", to);
+
+        String url_str = String.format("https://api.exchangerate.host/latest?from=%s&symbols=%s&amount=%d", from,
+                finalCurrencies, amount);
+
         HttpURLConnection request = null;
         ServiceResponse response;
 
