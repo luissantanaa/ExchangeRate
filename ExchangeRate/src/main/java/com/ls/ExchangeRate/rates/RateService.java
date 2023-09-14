@@ -6,8 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
@@ -16,10 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RateService {
 
-    public Map<String, String> getExchangeRate(String from, String to) throws IOException {
+    public ServiceResponse getExchangeRate(String from, String to) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s", from, to);
         HttpURLConnection request = null;
-        Map<String, String> serviceResponseMap = new HashMap<String, String>();
+        ServiceResponse response;
 
         try {
             URL url = new URL(url_str);
@@ -27,13 +25,14 @@ public class RateService {
             request.connect();
 
         } catch (Exception e) {
-            serviceResponseMap.put("statusCode", "500");
-            serviceResponseMap.put("message", "Error connecting request");
-            return serviceResponseMap;
+            response = ServiceResponse.builder().statusCode(502).message("Error connecting to external API")
+                    .result(null)
+                    .build();
+            return response;
         }
 
         try {
-            if (String.valueOf(request.getResponseCode()).startsWith("2")) {
+            if (request.getResponseCode() == 200) {
                 String jsonResponse = new BufferedReader(new InputStreamReader((InputStream) request.getContent()))
                         .lines()
                         .collect(Collectors.joining("\n"));
@@ -41,25 +40,35 @@ public class RateService {
                 JSONObject obj = new JSONObject(jsonResponse);
 
                 if (obj.get("result").toString() == "null") {
-                    serviceResponseMap.put("statusCode", "400");
-                    serviceResponseMap.put("message", "Unsuccessful request");
-                    return serviceResponseMap;
+                    response = ServiceResponse.builder().statusCode(400).message("Unsuccessful request")
+                            .result(null)
+                            .build();
+
+                    return response;
                 }
 
                 String result = String.valueOf(obj.getDouble("result"));
 
-                serviceResponseMap.put("statusCode", String.valueOf(request.getResponseCode()));
-                serviceResponseMap.put("Exchange Rate", result);
-                return serviceResponseMap;
+                response = ServiceResponse.builder().statusCode(request.getResponseCode()).message("Successful request")
+                        .result(result)
+                        .build();
+
+                return response;
             }
         } catch (IOException e) {
-            serviceResponseMap.put("statusCode", String.valueOf(request.getResponseCode()));
-            serviceResponseMap.put("message", "Error processing request response");
-            return serviceResponseMap;
+
+            response = ServiceResponse.builder().statusCode(request.getResponseCode())
+                    .message("Error processing request response")
+                    .result(null)
+                    .build();
+            return response;
         }
 
-        serviceResponseMap.put("statusCode", String.valueOf(request.getResponseCode()));
-        serviceResponseMap.put("message", "Error");
-        return serviceResponseMap;
+        response = ServiceResponse.builder().statusCode(request.getResponseCode())
+                .message("Error")
+                .result(null)
+                .build();
+
+        return response;
     }
 }

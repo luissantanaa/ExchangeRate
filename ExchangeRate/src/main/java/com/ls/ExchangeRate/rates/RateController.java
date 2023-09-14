@@ -36,24 +36,19 @@ public class RateController {
     @Operation(summary = "Retrieve exchange rate")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Found Exchange Rate"),
-            @ApiResponse(responseCode = "404", description = "Error", content = @Content) })
+            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
+    })
     @GetMapping(path = "getExchangeRate/")
-    public ResponseEntity<Map<String, String>> getExchangeRate(@RequestParam("from") String from,
+    public ResponseEntity<String> getExchangeRate(@RequestParam("from") String from,
             @RequestParam("to") String to) throws IOException {
-        Map<String, String> service_result = this.rateService.getExchangeRate(from, to);
+        ServiceResponse service_result = this.rateService.getExchangeRate(from, to);
+        int statusCode = service_result.statusCode;
 
-        if (service_result.get("statusCode").startsWith("2")) {
-            int statusCode = Integer.parseInt(service_result.get("statusCode"));
-            service_result.remove("statusCode");
-
-            return new ResponseEntity<Map<String, String>>(service_result,
-                    HttpStatus.valueOf(statusCode));
+        if (statusCode == 200) {
+            return new ResponseEntity<>("Exchange Rate: " + service_result.result, HttpStatus.OK);
         } else {
-            int statusCode = Integer.parseInt(service_result.get("statusCode"));
-            service_result.remove("statusCode");
-
-            return new ResponseEntity<Map<String, String>>(service_result,
-                    HttpStatus.valueOf(statusCode));
+            return new ResponseEntity<>(service_result.message, HttpStatus.valueOf(statusCode));
         }
     }
 }
