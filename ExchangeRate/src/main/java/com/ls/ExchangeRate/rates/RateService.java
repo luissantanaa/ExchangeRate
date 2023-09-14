@@ -95,8 +95,15 @@ public class RateService {
                         .lines()
                         .collect(Collectors.joining("\n"));
 
-                // TODO verificar se é usada a base default
                 JSONObject obj = new JSONObject(jsonResponse);
+
+                if (!obj.getString("base").equals(base)) {
+                    response = ServiceResponse.builder().statusCode(404).message("Base currency not found")
+                            .result(null)
+                            .build();
+
+                    return response;
+                }
 
                 if (obj.get("rates").toString() == "null") {
                     response = ServiceResponse.builder().statusCode(400).message("Unsuccessful request")
