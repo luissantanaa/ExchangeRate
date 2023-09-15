@@ -34,9 +34,20 @@ public class RateServiceTests {
 
     @Test
     @DisplayName("Tests getExchangeRate endpoint with incorrect \"from\" parameter and expects incorrect result")
-    public void testGetExchangeRateFail() throws IOException {
+    public void testGetExchangeRateFail1() throws IOException {
         String from = "US";
         String to = "EUR";
+
+        ServiceResponseDto response = rateService.getExchangeRate(from, to);
+        assertNull(response.getResult());
+        assertEquals(response.getStatusCode(), 400);
+    }
+
+    @Test
+    @DisplayName("Tests getExchangeRate endpoint with incorrect \"to\" parameter and expects incorrect result")
+    public void testGetExchangeRateFail2() throws IOException {
+        String from = "USD";
+        String to = "EU";
 
         ServiceResponseDto response = rateService.getExchangeRate(from, to);
         assertNull(response.getResult());

@@ -101,7 +101,7 @@ public class RateController {
     })
 
     @GetMapping(path = "getConvertedAmountToAllCurr/")
-    public ResponseEntity<String> getConvertedAmountToCurrs(@RequestParam("from") String from,
+    public ResponseEntity<String> getConvertedAmountToAllCurr(@RequestParam("from") String from,
             @RequestParam("to") List<String> to,
             @RequestParam("amount") int amount) throws IOException {
         ServiceResponseDto service_result = this.rateService.getConvertedAmountToAllCurr(from, to, amount);
