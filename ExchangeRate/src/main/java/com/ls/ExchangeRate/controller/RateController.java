@@ -25,10 +25,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 public class RateController {
     private final RateService rateService;
 
-    public enum Directions {
-        ASC, DESC;
-    }
-
     @Autowired
     public RateController(RateService rateService) {
         this.rateService = rateService;
@@ -40,6 +36,7 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
+
     @GetMapping(path = "getExchangeRate/")
     public ResponseEntity<String> getExchangeRate(@RequestParam("from") String from,
             @RequestParam("to") String to) throws IOException {
@@ -59,6 +56,7 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
+
     @GetMapping(path = "getAllExchangeRates/")
     public ResponseEntity<String> getAllExchangeRates(@RequestParam("base") String base) throws IOException {
         ServiceResponseDto service_result = this.rateService.getAllExchangeRates(base);
@@ -80,6 +78,7 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
+
     @GetMapping(path = "getConvertedAmount/")
     public ResponseEntity<String> getConvertedAmount(@RequestParam("from") String from, @RequestParam("to") String to,
             @RequestParam("amount") int amount) throws IOException {
@@ -100,6 +99,7 @@ public class RateController {
             @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
+
     @GetMapping(path = "getConvertedAmountToAllCurr/")
     public ResponseEntity<String> getConvertedAmountToCurrs(@RequestParam("from") String from,
             @RequestParam("to") List<String> to,
