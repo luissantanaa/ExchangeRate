@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.ls.ExchangeRate.dto.ServiceResponseDto;
@@ -66,11 +67,16 @@ public class RateService {
         }
     }
 
+    @Cacheable("exchangeRate")
     public ServiceResponseDto getExchangeRate(String from, String to) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s", from, to);
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
+
+        System.out.println();
+        System.out.println("OI1");
+        System.out.println();
 
         if (!availableRates.contains(from) || !availableRates.contains(to)) {
 
@@ -113,11 +119,16 @@ public class RateService {
         return response;
     }
 
+    @Cacheable("exchangeRateList")
     public ServiceResponseDto getAllExchangeRates(String base) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/latest?base=%s", base);
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
+
+        System.out.println();
+        System.out.println("OI2");
+        System.out.println();
 
         if (!availableRates.contains(base)) {
             response = serviceResponseDtoBuilder(400, "Base currency not found",
@@ -159,12 +170,17 @@ public class RateService {
         return response;
     }
 
+    @Cacheable("convertedAmount")
     public ServiceResponseDto getConvertedAmount(String from, String to, int amount) throws IOException {
         String url_str = String.format("https://api.exchangerate.host/convert?from=%s&to=%s&amount=%d", from, to,
                 amount);
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
+
+        System.out.println();
+        System.out.println("OI3");
+        System.out.println();
 
         if (!availableRates.contains(from) || !availableRates.contains(to) || !(amount > 0)) {
 
@@ -206,6 +222,7 @@ public class RateService {
         return response;
     }
 
+    @Cacheable("convertedAmountList")
     public ServiceResponseDto getConvertedAmountToAllCurr(String from, List<String> to, int amount) throws IOException {
         String finalCurrencies = String.join(",", to);
 
@@ -215,6 +232,10 @@ public class RateService {
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
+
+        System.out.println();
+        System.out.println("OI4");
+        System.out.println();
 
         boolean validToRates = to.stream().allMatch(elem -> availableRates.contains(elem));
 
