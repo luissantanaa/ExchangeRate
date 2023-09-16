@@ -32,8 +32,8 @@ public class RateController {
 
     @Operation(summary = "Retrieve exchange rate")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found Exchange Rate"),
-            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successful request"),
+            @ApiResponse(responseCode = "400", description = "Base or Final currency not found", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
 
@@ -52,8 +52,8 @@ public class RateController {
 
     @Operation(summary = "Retrieve all exchange rates")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Found Exchange Rates"),
-            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successful request"),
+            @ApiResponse(responseCode = "400", description = "Base currency not found", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
 
@@ -74,8 +74,8 @@ public class RateController {
 
     @Operation(summary = "Convert amount to currency")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Converted amount"),
-            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successful request"),
+            @ApiResponse(responseCode = "400", description = "Base or Final currency must exist and Amount must be over 0", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
 
@@ -95,8 +95,8 @@ public class RateController {
 
     @Operation(summary = "Convert amount to requested currencies")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Converted amount"),
-            @ApiResponse(responseCode = "400", description = "Unsuccessful request", content = @Content),
+            @ApiResponse(responseCode = "200", description = "Successful request"),
+            @ApiResponse(responseCode = "400", description = "Base or Final currency must exist and Amount must be over 0", content = @Content),
             @ApiResponse(responseCode = "502", description = "Error connecting to external API", content = @Content),
     })
 
