@@ -17,25 +17,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ls.ExchangeRate.dto.RateInfoDto;
 import com.ls.ExchangeRate.dto.ServiceResponseDto;
-import com.ls.ExchangeRate.repository.RateInfoRepository;
 
 import jakarta.annotation.PostConstruct;
 
 @Service
 public class RateService {
     private List<String> availableRates;
-
-    private final RateInfoRepository rateInfoRepository;
-
-    @Autowired
-    public RateService(RateInfoRepository rateInfoRepository) {
-        this.rateInfoRepository = rateInfoRepository;
-    }
 
     @PostConstruct
     public void init() throws FileNotFoundException, IOException {
