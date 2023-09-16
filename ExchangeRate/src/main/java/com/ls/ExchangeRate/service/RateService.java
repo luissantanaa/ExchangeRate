@@ -74,10 +74,6 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
-        System.out.println();
-        System.out.println("OI1");
-        System.out.println();
-
         if (!availableRates.contains(from) || !availableRates.contains(to)) {
 
             response = serviceResponseDtoBuilder(400, "Base or Final currency not found",
@@ -126,11 +122,8 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
-        System.out.println();
-        System.out.println("OI2");
-        System.out.println();
-
         if (!availableRates.contains(base)) {
+
             response = serviceResponseDtoBuilder(400, "Base currency not found",
                     null);
             return response;
@@ -177,10 +170,6 @@ public class RateService {
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
-
-        System.out.println();
-        System.out.println("OI3");
-        System.out.println();
 
         if (!availableRates.contains(from) || !availableRates.contains(to) || !(amount > 0)) {
 
@@ -232,10 +221,6 @@ public class RateService {
         Map<String, HttpURLConnection> connection;
         HttpURLConnection request;
         ServiceResponseDto response;
-
-        System.out.println();
-        System.out.println("OI4");
-        System.out.println();
 
         boolean validToRates = to.stream().allMatch(elem -> availableRates.contains(elem));
 
