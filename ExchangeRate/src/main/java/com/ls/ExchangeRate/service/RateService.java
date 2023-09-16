@@ -17,9 +17,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import com.ls.ExchangeRate.ExchangeRateApplication;
 import com.ls.ExchangeRate.dto.ServiceResponseDto;
 
 import jakarta.annotation.PostConstruct;
@@ -27,6 +30,8 @@ import jakarta.annotation.PostConstruct;
 @Service
 public class RateService {
     private List<String> availableRates;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExchangeRateApplication.class);
 
     @PostConstruct
     public void init() throws FileNotFoundException, IOException {
@@ -36,6 +41,8 @@ public class RateService {
 
         connection = getConnection(url_str);
         request = connection.get("connection");
+
+        LOGGER.info("INIT RATE SERVICE");
 
         if (request != null) {
             try {
@@ -54,6 +61,8 @@ public class RateService {
 
                 }
             } catch (IOException e) {
+                LOGGER.warn("REQUEST ERROR. USING FALLBACK CURRENCY LIST");
+
                 File file = new File("src/main/resources/static/rates.csv");
                 try (BufferedReader br = new BufferedReader(new FileReader(file))) {
                     String line;
@@ -74,7 +83,11 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
+        LOGGER.info("GET EXCHANGE RATE REQUEST");
+
         if (!availableRates.contains(from) || !availableRates.contains(to)) {
+
+            LOGGER.error("INVALID ARGUMENTS");
 
             response = serviceResponseDtoBuilder(400, "Base or Final currency not found",
                     null);
@@ -85,6 +98,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
+
+            LOGGER.error("ERROR CONNECTING TO EXTERNAL API");
 
             response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
@@ -107,6 +122,8 @@ public class RateService {
             }
         } catch (IOException e) {
 
+            LOGGER.error("ERROR PROCESSING REQUEST RESPONSE");
+
             response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
         }
@@ -122,7 +139,11 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
+        LOGGER.info("GET ALL EXCHANGE RATES REQUEST");
+
         if (!availableRates.contains(base)) {
+
+            LOGGER.error("INVALID ARGUMENT");
 
             response = serviceResponseDtoBuilder(400, "Base currency not found",
                     null);
@@ -133,6 +154,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
+
+            LOGGER.error("ERROR CONNECTING TO EXTERNAL API");
 
             response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
@@ -155,6 +178,8 @@ public class RateService {
             }
         } catch (IOException e) {
 
+            LOGGER.error("ERROR PROCESSING REQUEST RESPONSE");
+
             response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
         }
@@ -171,7 +196,11 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
+        LOGGER.info("GET CONVERTED AMOUNT REQUEST");
+
         if (!availableRates.contains(from) || !availableRates.contains(to) || !(amount > 0)) {
+
+            LOGGER.error("INVALID ARGUMENTS");
 
             response = serviceResponseDtoBuilder(400, "Base or Final currency must exist and Amount must be over 0",
                     null);
@@ -182,6 +211,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
+
+            LOGGER.error("ERROR CONNECTING TO EXTERNAL API");
 
             response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
@@ -202,6 +233,8 @@ public class RateService {
                 return response;
             }
         } catch (IOException e) {
+
+            LOGGER.error("ERROR PROCESSING REQUEST RESPONSE");
 
             response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
@@ -222,9 +255,13 @@ public class RateService {
         HttpURLConnection request;
         ServiceResponseDto response;
 
+        LOGGER.info("GET MULTIPLE CONVERTED AMOUNT REQUEST");
+
         boolean validToRates = to.stream().allMatch(elem -> availableRates.contains(elem));
 
         if (!availableRates.contains(from) || !validToRates || !(amount > 0)) {
+
+            LOGGER.error("INVALID ARGUMENTS");
 
             response = serviceResponseDtoBuilder(400, "Base or Final currency must exist and Amount must be over 0",
                     null);
@@ -235,6 +272,8 @@ public class RateService {
         request = connection.get("connection");
 
         if (request == null) {
+
+            LOGGER.error("ERROR CONNECTING TO EXTERNAL API");
 
             response = serviceResponseDtoBuilder(502, "Error connecting to external API", null);
             return response;
@@ -255,6 +294,8 @@ public class RateService {
                 return response;
             }
         } catch (IOException e) {
+
+            LOGGER.error("ERROR PROCESSING REQUEST RESPONSE");
 
             response = serviceResponseDtoBuilder(request.getResponseCode(), "Error processing request response", null);
             return response;
