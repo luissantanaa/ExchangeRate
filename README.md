@@ -10,7 +10,7 @@ Or use the jar file present in the repository with command:
 
 ## Description
 
-This repository contains a Springboot application that allows the user to returns the exchange rate or converts a given amount from currency A to B or multiple currencies. An external API [(exchangerate.host)
+This repository contains a Springboot application that allows the user to get the exchange rate or convert a given amount from currency A to B or multiple currencies. An external API [(exchangerate.host)
 ](https://exchangerate.host/#/) is used to carry out the tasks described before.
 
 This application contains the following endpoints:
